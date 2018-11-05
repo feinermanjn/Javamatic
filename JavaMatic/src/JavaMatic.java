@@ -3,15 +3,15 @@ import java.util.Scanner;
 
 public class JavaMatic{
 	static Ingredient[] ingredients;
-	static ArrayList<Drink> drinks;
-	static boolean quit;
+	static ArrayList<Drink> drinks;//ArrayList, so new drinks can be added easily
+	static boolean running;//Becomes false when the user inputs Q
 	public static void main(String[] args){
-		setUp();
-		quit=false;
+		setUp();//Set up the Javamatic machine with the correct ingredients and drinks
+		running=true;
 		Scanner scan=new Scanner(System.in);
-		printInventory();
-		printMenu();
-		while(!quit){
+		printInventory();//Print the inventory
+		printMenu();//Print the menu of drinks
+		while(running){
 			String input=scan.nextLine();
 			run(input);
 		}
@@ -19,6 +19,8 @@ public class JavaMatic{
 	public static void setUp(){
 		ingredients=new Ingredient[9];
 		drinks=new ArrayList<Drink>();
+		//Initialize ingredients and drinks. This is a little messy, but the instructions
+		//state that it is acceptable to perform this in code
 		Ingredient cocoa=new Ingredient("Cocoa",0.9);
 		Ingredient coffee=new Ingredient("Coffee",0.75);
 		Ingredient cream=new Ingredient("Cream",0.25);
@@ -67,17 +69,17 @@ public class JavaMatic{
 		ingredients[8]=whipped;
 	}
 	public static void run(String input){
-		if(!quit){
-			if(input.toLowerCase().equals("r")){
+		if(running){
+			if(input.toLowerCase().equals("r")){//Check for both 'R' and 'r'
 				for(Ingredient ingr: ingredients){
 					ingr.restock();
 				}
-				printMenu();
+				printMenu();//Need to reprint the menu after restocking
 			}
-			else if(input.toLowerCase().equals("q"))
-				quit=true;
-			else if((input.chars().allMatch(Character::isDigit))&&Integer.parseInt(input)>0&&Integer.parseInt(input)<=drinks.size()){
-				Drink chosen=drinks.get(Integer.parseInt(input)-1);
+			else if(input.toLowerCase().equals("q"))//Check for both 'Q' and 'q'
+				running=false;//User has quit the program
+			else if((input.chars().allMatch(Character::isDigit))&&Integer.parseInt(input)>0&&Integer.parseInt(input)<=drinks.size()){//If user has entered a number and it is in the range 1-6
+				Drink chosen=drinks.get(Integer.parseInt(input)-1);//The menu starts at 1, so decrement it since array lists start at 0
 				if(chosen.isInStock()){
 					System.out.println("Dispensing:"+chosen.getName());
 					chosen.dispense();
@@ -88,7 +90,7 @@ public class JavaMatic{
 					System.out.println("Out of Stock: "+chosen.getName());
 			}
 			else{
-				System.out.println("Invalid Selection: "+input);
+				System.out.println("Invalid Selection: "+input);//If user hasn't restocked, quit, or chosen a drink, they must have entered an invalid input
 			}
 		}
 	}
@@ -106,8 +108,8 @@ public class JavaMatic{
 			String price=drinks.get(i).getPrice();
 			boolean inStock=true;
 			for(Ingredient ingr:ingredients){
-				if(ingr.getQuantity()<drinks.get(i).getMenuQuantity(ingr))
-					inStock=false;
+				if(ingr.getQuantity()<drinks.get(i).getMenuQuantity(ingr))  
+					inStock=false;//Loop through ingredients. If there aren't enough ingredients in stock to cover the requirements for dispensing it, it is out of stock
 			}
 			System.out.println(number+","+name+",$"+price+","+inStock);
 			drinks.get(i).setInStock(inStock);
